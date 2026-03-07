@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { workoutPlan } from '../data/workoutPlan';
 import type { WorkoutLog, SetLog } from '../types';
 
@@ -12,6 +13,18 @@ interface LogWorkoutProps {
 export function LogWorkout({ selectedDayId, onSelectDay, currentLog, setCurrentLog, onFinishWorkout }: LogWorkoutProps) {
   const today = new Date().toISOString().split('T')[0];
   const selectedDay = workoutPlan.find(d => d.id === selectedDayId);
+
+  const [elapsedMinutes, setElapsedMinutes] = useState(0);
+
+  useEffect(() => {
+    if (!currentLog?.startTime) return;
+    const update = () => {
+      setElapsedMinutes(Math.floor((Date.now() - currentLog.startTime!) / 60000));
+    };
+    update();
+    const interval = setInterval(update, 60000);
+    return () => clearInterval(interval);
+  }, [currentLog?.startTime]);
 
   const updateSet = (exerciseIndex: number, setIndex: number, updates: Partial<SetLog>) => {
     if (!currentLog) return;
@@ -97,6 +110,18 @@ export function LogWorkout({ selectedDayId, onSelectDay, currentLog, setCurrentL
         <div className="text-xs text-green-500 mt-2">
           💾 Salvataggio automatico attivo
         </div>
+        {selectedDay && (() => {
+          const totalSets = selectedDay.exercises.reduce((acc, ex) => acc + ex.sets, 0);
+          const estimated = totalSets * 2;
+          return (
+            <div className="mt-2 flex gap-4 text-xs text-gray-400">
+              <span>⏱ Stimato: ~{estimated} min</span>
+              {currentLog?.startTime && (
+                <span className="text-indigo-400">⏳ Trascorso: {elapsedMinutes} min</span>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {selectedDay.exercises.map((exercise, exIndex) => (

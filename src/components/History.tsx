@@ -6,12 +6,30 @@ import type { WorkoutLog } from '../types';
 export function History() {
   const [logs, setLogs] = useState<WorkoutLog[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLogs(storage.getWorkoutLogs().sort((a, b) => 
+  const loadLogs = () => {
+    setLogs(storage.getWorkoutLogs().sort((a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     ));
+  };
+
+  useEffect(() => {
+    loadLogs();
   }, []);
+
+  const handleDelete = (id: string) => {
+    storage.deleteWorkoutLog(id);
+    setConfirmDeleteId(null);
+    loadLogs();
+  };
+
+  const getEstimatedMinutes = (dayId: string) => {
+    const day = workoutPlan.find(d => d.id === dayId);
+    if (!day) return null;
+    const totalSets = day.exercises.reduce((acc, ex) => acc + ex.sets, 0);
+    return totalSets * 2;
+  };
 
   const allExercises = workoutPlan.flatMap(day => 
     day.exercises.map(ex => ({ ...ex, dayName: day.name, dayEmoji: day.emoji }))
@@ -113,6 +131,11 @@ export function History() {
               0
             );
 
+            const estimated = getEstimatedMinutes(log.dayId);
+            const actual = log.endTime && log.startTime
+              ? Math.round((log.endTime - log.startTime) / 60000)
+              : null;
+
             return (
               <div key={log.id} className="card">
                 <div className="flex items-center justify-between">
@@ -120,10 +143,38 @@ export function History() {
                     <span className="text-xl mr-2">{day?.emoji}</span>
                     <span className="font-semibold">{day?.name}</span>
                   </div>
-                  <span className="text-sm text-gray-400">{formatDate(log.date)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-400">{formatDate(log.date)}</span>
+                    {confirmDeleteId === log.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDelete(log.id)}
+                          className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded"
+                        >
+                          Sì
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="text-xs bg-gray-600 hover:bg-gray-500 text-white px-2 py-1 rounded"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(log.id)}
+                        className="text-gray-500 hover:text-red-400 transition-colors"
+                        title="Elimina workout"
+                      >
+                        <i className="fas fa-trash text-sm"></i>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="mt-2 text-sm text-gray-400">
-                  {completedSets}/{totalSets} set completati
+                <div className="mt-2 text-sm text-gray-400 flex items-center gap-4">
+                  <span>{completedSets}/{totalSets} set</span>
+                  {estimated && <span>⏱ Stimato: ~{estimated} min</span>}
+                  {actual !== null && <span className="text-indigo-400">✅ Effettuato: {actual} min</span>}
                 </div>
               </div>
             );

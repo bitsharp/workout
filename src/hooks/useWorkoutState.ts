@@ -58,6 +58,7 @@ export function useWorkoutState() {
             id: `${today}-${day.id}`,
             date: today,
             dayId: day.id,
+            startTime: Date.now(),
             exercises: day.exercises.map(ex => ({
               exerciseId: ex.id,
               sets: Array(ex.sets).fill(null).map(() => ({
@@ -82,7 +83,12 @@ export function useWorkoutState() {
 
   const finishWorkout = () => {
     if (currentLog) {
-      storage.saveWorkoutLog(currentLog);
+      const endTime = Date.now();
+      const duration = currentLog.startTime
+        ? Math.round((endTime - currentLog.startTime) / 60000)
+        : undefined;
+      const finishedLog: WorkoutLog = { ...currentLog, endTime, duration };
+      storage.saveWorkoutLog(finishedLog);
     }
     setCurrentLog(null);
     setSelectedDay(null);
