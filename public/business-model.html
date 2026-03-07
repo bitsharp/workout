@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout App — Business Model</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --primary: #6366f1;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e293b 100%);
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #a5b4fc, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #312e81;
+      color: #a5b4fc;
+      border: 1px solid #4338ca;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* Pipeline */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 40px 0;
+    }
+
+    .pipeline-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      min-width: 150px;
+    }
+
+    .pipeline-step .icon { font-size: 2rem; display: block; margin-bottom: 6px; }
+    .pipeline-step .label { font-size: 0.85rem; color: var(--muted); }
+    .pipeline-step .title { font-weight: 700; font-size: 0.95rem; }
+
+    .arrow { color: var(--primary); font-size: 1.5rem; }
+
+    /* Section */
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 48px 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Phases */
+    .phases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .phase {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phase::before {
+      content: attr(data-num);
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      font-size: 5rem;
+      font-weight: 900;
+      color: rgba(99, 102, 241, 0.08);
+      line-height: 1;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .phase-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .phase-icon.indigo { background: rgba(99,102,241,0.15); }
+    .phase-icon.green { background: rgba(34,197,94,0.15); }
+    .phase-icon.amber { background: rgba(245,158,11,0.15); }
+
+    .phase h3 { font-size: 1.1rem; font-weight: 700; }
+    .phase .subtitle { font-size: 0.8rem; color: var(--muted); }
+
+    .task-list { list-style: none; space-y: 8px; }
+    .task-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-size: 0.9rem;
+    }
+
+    .task-list li:last-child { border-bottom: none; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tag.auto {
+      background: rgba(34,197,94,0.15);
+      color: #86efac;
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+
+    .tag.manual {
+      background: rgba(245,158,11,0.15);
+      color: #fcd34d;
+      border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .tag.decision {
+      background: rgba(239,68,68,0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 32px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    /* Roles table */
+    .roles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .role-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .role-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .role-card.ai h3 { color: #a5b4fc; }
+    .role-card.human h3 { color: #fcd34d; }
+
+    .role-card ul { list-style: none; }
+    .role-card ul li {
+      padding: 8px 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(51,65,85,0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+    }
+
+    .role-card ul li:last-child { border-bottom: none; }
+
+    /* Timeline */
+    .timeline {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .timeline-week {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+      padding-top: 4px;
+    }
+
+    .timeline-bar {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+
+    .timeline-bar strong { color: #a5b4fc; }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      padding: 48px 20px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(49,46,129,0.2));
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px;
+      margin-top: 48px;
+    }
+
+    .cta h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; }
+    .cta p { color: var(--muted); max-width: 500px; margin: 0 auto 24px; }
+
+    .cta-steps {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cta-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      min-width: 160px;
+    }
+
+    .cta-step .num {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .cta-step span { font-size: 0.85rem; color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .roles { grid-template-columns: 1fr; }
+      .pipeline-step { min-width: 120px; }
+      .arrow { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">🎮 Powered by Atari AI</div>
+  <h1>Workout App — Business Model</h1>
+  <p>Da prototipo personale a prodotto scalabile su iOS con validazione tramite advertising data.</p>
+</header>
+
+<main>
+
+  <!-- Pipeline -->
+  <div class="section-title">🔄 Pipeline</div>
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <span class="icon">📱</span>
+      <span class="title">App iOS</span>
+      <span class="label">Multi-utente</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipeline-step">
+      <span class="icon">📣</span>
+      <span class="title">ADV Meta</span>
+      <span class="label">FB + IG</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipeline-step">
+      <span class="icon">📊</span>
+      <span class="title">Data Analysis</span>
+      <span class="label">CPI, CTR, ROAS</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipeline-step">
+      <span class="icon">✅</span>
+      <span class="title">Validazione</span>
+      <span class="label">Go/No-Go</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="pipeline-step">
+      <span class="icon">🚀</span>
+      <span class="title">Scale</span>
+      <span class="label">App Store</span>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <strong style="font-size:0.85rem">Legenda:</strong>
+    <div class="legend-item"><span class="tag auto">🤖 AUTO</span> Faccio io automaticamente</div>
+    <div class="legend-item"><span class="tag manual">⚡ TU</span> Serve il tuo input/approvazione</div>
+    <div class="legend-item"><span class="tag decision">🎯 DECISIONE</span> Scelta strategica tua</div>
+  </div>
+
+  <!-- Phases -->
+  <div class="section-title">📌 Fasi del Progetto</div>
+  <div class="phases">
+
+    <!-- Phase 1 -->
+    <div class="phase" data-num="1">
+      <div class="phase-header">
+        <div class="phase-icon indigo">📱</div>
+        <div>
+          <h3>App iOS Multi-Utente</h3>
+          <div class="subtitle">React Native + Expo + Backend</div>
+        </div>
+      </div>
+      <ul class="task-list">
+        <li><span class="tag auto">🤖 AUTO</span> Sviluppo codebase React Native</li>
+        <li><span class="tag auto">🤖 AUTO</span> Backend API (auth, dati utenti)</li>
+        <li><span class="tag auto">🤖 AUTO</span> Database cloud + sync</li>
+        <li><span class="tag auto">🤖 AUTO</span> Build per App Store (Expo EAS)</li>
+        <li><span class="tag manual">⚡ TU</span> Apple Developer account ($99/anno)</li>
+        <li><span class="tag manual">⚡ TU</span> Approvare design e feature</li>
+        <li><span class="tag decision">🎯 DECISIONE</span> Freemium vs Paid vs Subscription</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase" data-num="2">
+      <div class="phase-header">
+        <div class="phase-icon amber">📣</div>
+        <div>
+          <h3>ADV Facebook & Instagram</h3>
+          <div class="subtitle">Target: bodybuilder 18-45, Italia/ES</div>
+        </div>
+      </div>
+      <ul class="task-list">
+        <li><span class="tag auto">🤖 AUTO</span> Copy e testi per gli annunci</li>
+        <li><span class="tag auto">🤖 AUTO</span> Definire audience & targeting</li>
+        <li><span class="tag auto">🤖 AUTO</span> Struttura campagne (A/B test)</li>
+        <li><span class="tag auto">🤖 AUTO</span> Analisi performance settimanale</li>
+        <li><span class="tag manual">⚡ TU</span> Account Meta Business</li>
+        <li><span class="tag manual">⚡ TU</span> Budget iniziale (min €300-500)</li>
+        <li><span class="tag manual">⚡ TU</span> Grafiche / video creativi</li>
+        <li><span class="tag decision">🎯 DECISIONE</span> Budget da scalare se i dati sono buoni</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase" data-num="3">
+      <div class="phase-header">
+        <div class="phase-icon green">📊</div>
+        <div>
+          <h3>Data Analysis & Validazione</h3>
+          <div class="subtitle">KPI: CPI, CTR, Retention, ROAS</div>
+        </div>
+      </div>
+      <ul class="task-list">
+        <li><span class="tag auto">🤖 AUTO</span> Dashboard metriche settimanale</li>
+        <li><span class="tag auto">🤖 AUTO</span> Report automatici via Telegram</li>
+        <li><span class="tag auto">🤖 AUTO</span> Analisi cohort utenti</li>
+        <li><span class="tag auto">🤖 AUTO</span> Raccomandazioni ottimizzazione</li>
+        <li><span class="tag manual">⚡ TU</span> Accesso Meta Ads Manager</li>
+        <li><span class="tag decision">🎯 DECISIONE</span> Go/No-Go dopo 4 settimane di dati</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Who does what -->
+  <div class="section-title">👥 Chi Fa Cosa</div>
+  <div class="roles">
+    <div class="role-card ai">
+      <h3>🤖 Atari AI — Automatizzo</h3>
+      <ul>
+        <li>💻 Sviluppo e manutenzione app</li>
+        <li>✍️ Copy per ADV e landing page</li>
+        <li>🎯 Definizione audience targeting</li>
+        <li>📊 Analisi dati e report settimanali</li>
+        <li>🔔 Alert su anomalie e opportunità</li>
+        <li>📈 Raccomandazioni di ottimizzazione</li>
+        <li>🐛 Bug fix e aggiornamenti</li>
+        <li>📧 Email marketing automazioni</li>
+      </ul>
+    </div>
+    <div class="role-card human">
+      <h3>⚡ Luca — Approva & Investe</h3>
+      <ul>
+        <li>💳 Apple Developer ($99/anno)</li>
+        <li>💳 Budget ADV iniziale (~€500)</li>
+        <li>✅ Approvazione design e copy</li>
+        <li>🎯 Decisioni strategiche (pricing, etc.)</li>
+        <li>📱 Test beta dell'app</li>
+        <li>📸 Foto/video per creatività ADV</li>
+        <li>🏦 Account Meta Business Manager</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section-title">📅 Timeline Stimata</div>
+  <div class="timeline">
+    <div class="timeline-row">
+      <div class="timeline-week">Settimana 1-2</div>
+      <div class="timeline-bar"><strong>App iOS Multi-Utente</strong> — Auth, profili, sync cloud, timer in background, build TestFlight</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Settimana 3</div>
+      <div class="timeline-bar"><strong>Beta Testing</strong> — Installi su iPhone, test, fix bug, ottimizzazioni UX</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Settimana 4</div>
+      <div class="timeline-bar"><strong>Lancio ADV</strong> — Campagne Meta attive, A/B test creativi, pixel installato</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Settimana 5-8</div>
+      <div class="timeline-bar"><strong>Raccolta Dati</strong> — Report settimanali automatici, ottimizzazione campagne</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Settimana 8</div>
+      <div class="timeline-bar"><strong>Decision Point</strong> — Analisi dati completa → Go (scala) o Pivot</div>
+    </div>
+  </div>
+
+  <!-- Investment -->
+  <div class="section-title">💰 Investimento Minimo</div>
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#a5b4fc;">$99</div>
+      <div style="color:var(--muted); font-size:0.85rem;">Apple Developer<br>(annuale)</div>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#fcd34d;">€500</div>
+      <div style="color:var(--muted); font-size:0.85rem;">Budget ADV<br>(test iniziale)</div>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#86efac;">~€20/mese</div>
+      <div style="color:var(--muted); font-size:0.85rem;">Backend hosting<br>(se utenti crescono)</div>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.8rem; font-weight:800; color:#f9a8d4;">€0</div>
+      <div style="color:var(--muted); font-size:0.85rem;">Sviluppo app<br>(faccio io 🤖)</div>
+    </div>
+  </div>
+
+  <!-- Budget ADV -->
+  <div class="section-title">💸 Budget ADV — Ottimizzato</div>
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px;">
+    <p style="color:var(--muted); margin-bottom:16px;">Il budget iniziale può essere ridotto significativamente rispetto alla stima conservativa di €500:</p>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:16px;">
+      <div style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:16px; text-align:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:#86efac;">€150</div>
+        <div style="color:var(--muted); font-size:0.8rem;">Test iniziale consigliato<br>1-2 settimane, 2-3 campagne</div>
+      </div>
+      <div style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:16px; text-align:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:#fcd34d;">€50/sett</div>
+        <div style="color:var(--muted); font-size:0.8rem;">Minimo assoluto<br>per dati utili</div>
+      </div>
+      <div style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:16px; text-align:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:#a5b4fc;">Scale</div>
+        <div style="color:var(--muted); font-size:0.8rem;">Solo se CTR > 2%<br>e CPI < €2</div>
+      </div>
+    </div>
+    <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:12px; font-size:0.9rem; color:#86efac;">
+      💡 Strategia: parti con €150, se i numeri sono buoni si scala. Se no, perdita minima.
+    </div>
+  </div>
+
+  <!-- Creatività ADV -->
+  <div class="section-title">🎨 Creatività ADV — Cosa Automatizzo</div>
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+      <div style="padding:12px; background:#0f172a; border-radius:10px; border:1px solid #334155;">
+        <div style="font-size:1.2rem; margin-bottom:6px;">✅ Grafiche statiche</div>
+        <div style="color:var(--muted); font-size:0.85rem;">Genero con AI (DALL-E, Midjourney prompt) — automatico</div>
+      </div>
+      <div style="padding:12px; background:#0f172a; border-radius:10px; border:1px solid #334155;">
+        <div style="font-size:1.2rem; margin-bottom:6px;">✅ Mockup app</div>
+        <div style="color:var(--muted); font-size:0.85rem;">Screenshots professionali dell'app su iPhone — automatico</div>
+      </div>
+      <div style="padding:12px; background:#0f172a; border-radius:10px; border:1px solid #334155;">
+        <div style="font-size:1.2rem; margin-bottom:6px;">✅ Copy annunci</div>
+        <div style="color:var(--muted); font-size:0.85rem;">Headline, testi, call-to-action ottimizzati — automatico</div>
+      </div>
+      <div style="padding:12px; background:#0f172a; border-radius:10px; border:1px solid #334155;">
+        <div style="font-size:1.2rem; margin-bottom:6px;">✅ Video slideshow</div>
+        <div style="color:var(--muted); font-size:0.85rem;">Canva API / Remotion — automatico</div>
+      </div>
+      <div style="padding:12px; background:#0f172a; border-radius:10px; border:1px solid #1f2937;">
+        <div style="font-size:1.2rem; margin-bottom:6px;">❌ Video con persone</div>
+        <div style="color:var(--muted); font-size:0.85rem;">Serve stock footage o video reale — richiede input umano</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build Measure Kill -->
+  <div class="section-title">🚀 Strategia: Build → Measure → Kill</div>
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px;">
+    <p style="color:var(--muted); margin-bottom:20px;">Invece di testare un'app alla volta, costruiamo 4-5 MVP in parallelo dalla stessa base e testiamo velocemente per eliminare le idee che non funzionano.</p>
+    
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:20px;">
+      <div style="background:#0f172a; border:1px solid #6366f1; border-radius:10px; padding:16px; text-align:center;">
+        <div style="color:#a5b4fc; font-weight:700; margin-bottom:4px;">Settimane 1-2</div>
+        <div style="font-size:0.85rem;">🏗️ Build 4-5 MVP<br><span style="color:var(--muted)">Dalla stessa base, niching diverso</span></div>
+      </div>
+      <div style="background:#0f172a; border:1px solid #f59e0b; border-radius:10px; padding:16px; text-align:center;">
+        <div style="color:#fcd34d; font-weight:700; margin-bottom:4px;">Settimane 3-4</div>
+        <div style="font-size:0.85rem;">📣 Test ADV in parallelo<br><span style="color:var(--muted)">€30-50 per app</span></div>
+      </div>
+      <div style="background:#0f172a; border:1px solid #22c55e; border-radius:10px; padding:16px; text-align:center;">
+        <div style="color:#86efac; font-weight:700; margin-bottom:4px;">Settimana 5</div>
+        <div style="font-size:0.85rem;">✅ Tieni le 2 migliori<br><span style="color:var(--muted)">Investi su quelle che funzionano</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+      <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:8px; padding:12px; font-size:0.9rem;">
+        <strong style="color:#a5b4fc;">Risultato:</strong><br>
+        <span style="color:var(--muted);">In 5 settimane validi 4-5 idee con soli €150-200 totali</span>
+      </div>
+      <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:12px; font-size:0.9rem;">
+        <strong style="color:#86efac;">Velocità:</strong><br>
+        <span style="color:var(--muted);">2 varianti app in 2-3 giorni cambiando nicchia, branding, contenuto</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>🚀 Per Partire Servono 3 Cose</h2>
+    <p>Tutto il resto lo gestisco io automaticamente.</p>
+    <div class="cta-steps">
+      <div class="cta-step">
+        <span class="num">1</span>
+        <span>Apple Developer<br>Account ($99)</span>
+      </div>
+      <div class="cta-step">
+        <span class="num">2</span>
+        <span>Meta Business<br>Manager (gratis)</span>
+      </div>
+      <div class="cta-step">
+        <span class="num">3</span>
+        <span>Budget ADV<br>iniziale (~€500)</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

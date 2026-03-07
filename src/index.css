@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+}
+
+body {
+  @apply bg-gray-900 text-white min-h-screen;
+}
+
+.btn-primary {
+  @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors;
+}
+
+.card {
+  @apply bg-gray-800 rounded-xl p-4 shadow-lg;
+}
